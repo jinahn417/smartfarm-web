@@ -30,19 +30,14 @@ function parseTs(ts) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-const IconThermo = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+const IconThermo = ({ color = "#ef4444" }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
   </svg>
 );
-const IconDrop = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+const IconDrop = ({ color = "#3b82f6" }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-  </svg>
-);
-const IconGauge = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
   </svg>
 );
 
@@ -57,14 +52,11 @@ function Card({ title, children, style }) {
 
 function SensorCard({ value, label, unit, icon, desc }) {
   return (
-    <div style={{
-      border: "1px solid #e5e7eb", borderRadius: 14, padding: "14px 12px",
-      background: "white", display: "flex", flexDirection: "column", gap: 6,
-    }}>
-      <div style={{ color: "#9ca3af" }}>{icon}</div>
+    <div style={{ border: "1px solid #e5e7eb", borderRadius: 14, padding: "14px 12px", background: "white", display: "flex", flexDirection: "column", gap: 6 }}>
+      <div>{icon}</div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-        <span style={{ fontSize: 26, fontWeight: 800, color: "#111827", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{value}</span>
-        <span style={{ fontSize: 13, color: "#6b7280", fontWeight: 600 }}>{unit}</span>
+        <span style={{ fontSize: 30, fontWeight: 800, color: "#111827", fontFamily: "'Paperozi', ui-monospace, SFMono-Regular, Menlo, monospace" }}>{value}</span>
+        <span style={{ fontSize: 14, color: "#6b7280", fontWeight: 600 }}>{unit}</span>
       </div>
       <div style={{ fontSize: 12, color: "#374151", fontWeight: 700 }}>{label}</div>
       {desc && <div style={{ fontSize: 10, color: "#9ca3af", lineHeight: 1.4 }}>{desc}</div>}
@@ -102,7 +94,7 @@ function DonutGauge({ label, value, min = 0, max = 100, unit = "", decimals = 1 
 
 function ActuatorItem({ label, on }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid #f3f4f6" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: on ? "#16a34a" : "#d1d5db", flexShrink: 0 }} />
       <div style={{ flex: 1, fontWeight: 600, color: "#111827", fontSize: 13 }}>{label}</div>
       <div style={{ fontSize: 12, fontWeight: 700, color: on ? "#16a34a" : "#9ca3af" }}>{on ? "ON" : "OFF"}</div>
@@ -209,6 +201,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const apiBase = import.meta.env.VITE_API_BASE;
+  const camUrl = import.meta.env.VITE_ESP32CAM_URL;
   const abortRef = useRef(null);
 
   const loadReadings = async () => {
@@ -285,8 +278,8 @@ export default function App() {
 
   const [controlMsg, setControlMsg] = useState(null);
   const sendControl = async (device, state) => {
-    try { setControlMsg("전송 중..."); const res = await fetch(`${apiBase}/api/control`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ device, state }) }); if (!res.ok) throw new Error(`HTTP ${res.status}`); setControlMsg("전송 완료"); setTimeout(() => setControlMsg(null), 1500); }
-    catch (e) { setControlMsg(`제어 API 실패: ${e instanceof Error ? e.message : String(e)}`); }
+    try { setControlMsg("\uc804\uc1a1 \uc911..."); const res = await fetch(`${apiBase}/api/control`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ device, state }) }); if (!res.ok) throw new Error(`HTTP ${res.status}`); setControlMsg("\uc804\uc1a1 \uc644\ub8cc"); setTimeout(() => setControlMsg(null), 1500); }
+    catch (e) { setControlMsg(`\uc81c\uc5b4 API \uc2e4\ud328: ${e instanceof Error ? e.message : String(e)}`); }
   };
 
   if (loading) return <div style={{ padding: 24, textAlign: "center" }}>로딩중...</div>;
@@ -295,13 +288,17 @@ export default function App() {
 
   return (
     <div style={{ padding: "12px 16px", background: "#f3f4f6", minHeight: "100vh", boxSizing: "border-box" }}>
-      <div style={{ maxWidth: 1300, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
 
         {/* ── Header ── */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: "clamp(20px, 5vw, 30px)", letterSpacing: -0.5 }}>여.라.心</h1>
-            <div style={{ fontSize: "clamp(11px, 2.5vw, 13px)", color: "#6b7280", fontWeight: 600, marginTop: 2 }}>greenhouse control solution</div>
+            <h1 style={{ margin: 0, fontSize: "clamp(28px, 6vw, 42px)", fontFamily: "'Paperozi', sans-serif", fontWeight: 700, letterSpacing: -1, color: "#111827" }}>
+              여.라.心
+            </h1>
+            <div style={{ fontSize: "clamp(11px, 2.5vw, 14px)", color: "#6b7280", fontWeight: 600, marginTop: 2 }}>
+              greenhouse control solution
+            </div>
           </div>
           <div style={{ textAlign: "right", fontSize: 10, color: "#9ca3af", lineHeight: 1.6, flexShrink: 0 }}>
             <div>API: <code style={{ fontSize: 9 }}>{apiBase}</code></div>
@@ -310,7 +307,7 @@ export default function App() {
         </div>
 
         {/* ── Tabs ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
           <Tabs items={[{ value: "overview", label: "Overview" }, { value: "weather", label: "Weather" }, { value: "control", label: "Manual control" }]} value={tab} onChange={setTab} />
           <button type="button" onClick={loadReadings} style={{ border: "1px solid #e5e7eb", background: "white", padding: "8px 12px", borderRadius: 10, fontWeight: 800, cursor: "pointer", fontSize: 12 }}>새로고침</button>
         </div>
@@ -319,18 +316,16 @@ export default function App() {
         {tab === "overview" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
-            {/* Row 1: Sensors 30% | Chart 70% */}
+            {/* Row 1: 4 Sensor Cards + Chart */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-              <div style={{ flex: "3 1 240px", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                <SensorCard icon={<IconThermo />} value={fmt1(numVal(latest.sht_temp))} unit="°C" label="SHT Temp" desc="SHT 센서 온도" />
-                <SensorCard icon={<IconThermo />} value={fmt1(numVal(latest.soil_temp))} unit="°C" label="Soil Temp" desc="토양 온도" />
-                <SensorCard icon={<IconThermo />} value={fmt1(numVal(latest.air_temp))} unit="°C" label="Air Temp" desc="대기 온도" />
-                <SensorCard icon={<IconDrop />} value={fmt1(numVal(latest.sht_hum))} unit="%" label="SHT Humidity" desc="SHT 센서 습도" />
-                <SensorCard icon={<IconDrop />} value={fmt1(numVal(latest.soil_hum))} unit="%" label="Soil Humidity" desc="토양 습도" />
-                <SensorCard icon={<IconGauge />} value={fmt2(numVal(latest.vpd_kpa))} unit="kPa" label="VPD" desc="수증기압차" />
+              <div style={{ flex: "3 1 260px", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                <SensorCard icon={<IconThermo color="#ef4444" />} value={fmt1(numVal(latest.sht_temp))} unit="°C" label="SHT Temp" desc="SHT 센서 온도" />
+                <SensorCard icon={<IconDrop color="#3b82f6" />} value={fmt1(numVal(latest.sht_hum))} unit="%" label="SHT Humidity" desc="SHT 센서 습도" />
+                <SensorCard icon={<IconThermo color="#f97316" />} value={fmt1(numVal(latest.soil_temp))} unit="°C" label="Soil Temp" desc="토양 온도" />
+                <SensorCard icon={<IconDrop color="#14b8a6" />} value={fmt1(numVal(latest.soil_hum))} unit="%" label="Soil Humidity" desc="토양 습도" />
               </div>
-              <Card title="온도/습도 (최근 24시간)" style={{ flex: "7 1 400px", minHeight: 300 }}>
-                <div style={{ width: "100%", height: "clamp(220px, 28vw, 320px)" }}>
+              <Card title="온도/습도 (최근 24시간)" style={{ flex: "7 1 400px", minHeight: 280 }}>
+                <div style={{ width: "100%", height: "clamp(200px, 26vw, 300px)" }}>
                   <ResponsiveContainer>
                     <LineChart data={chartData24h}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -349,17 +344,39 @@ export default function App() {
               </Card>
             </div>
 
-            {/* Row 2: Gauge 60% | Actuator 40% */}
+            {/* Row 2: Stream 40% | Gauge 30% | Actuator ~30% */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-              <Card title="지표 게이지" style={{ flex: "6 1 340px" }}>
-                <div style={{ display: "flex", gap: 16, justifyContent: "space-around", flexWrap: "wrap", padding: "8px 0" }}>
+
+              {/* ESP32-CAM Stream */}
+              <Card title="Live Camera" style={{ flex: "4 1 300px", overflow: "hidden" }}>
+                {camUrl ? (
+                  <div style={{ width: "100%", aspectRatio: "4/3", background: "#111", borderRadius: 8, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img
+                      src={camUrl}
+                      alt="ESP32-CAM Stream"
+                      style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ width: "100%", aspectRatio: "4/3", background: "#1f2937", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", fontSize: 13, textAlign: "center", padding: 16 }}>
+                    .env에 VITE_ESP32CAM_URL을 설정하세요<br />
+                    <code style={{ fontSize: 11, marginTop: 4 }}>VITE_ESP32CAM_URL=http://ESP32_IP/stream</code>
+                  </div>
+                )}
+              </Card>
+
+              {/* Donut Gauges */}
+              <Card title="지표 게이지" style={{ flex: "3 1 220px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, justifyItems: "center", padding: "8px 0" }}>
                   <DonutGauge label="VPD" value={numVal(latest.vpd_kpa)} min={0} max={3} unit="kPa" decimals={2} />
                   <DonutGauge label="DIF" value={numVal(latest.dif_intraday_c)} min={-10} max={10} unit="°C" decimals={1} />
                   <DonutGauge label="Soil Moist" value={numVal(latest.soil_moist_idx)} min={0} max={100} unit="" decimals={0} />
                   <DonutGauge label="RZ Temp" value={numVal(latest.rz_temp_idx)} min={0} max={100} unit="" decimals={0} />
                 </div>
               </Card>
-              <Card title="Actuator Status" style={{ flex: "4 1 240px" }}>
+
+              {/* Actuator Status */}
+              <Card title="Actuator Status" style={{ flex: "1 1 140px" }}>
                 <ActuatorItem label="FAN" on={asBool(latest.fan)} />
                 <ActuatorItem label="PUMP" on={asBool(latest.pump)} />
                 <ActuatorItem label="HEATER" on={asBool(latest.heater)} />
@@ -367,7 +384,7 @@ export default function App() {
               </Card>
             </div>
 
-            {/* Row 3: Raw Data */}
+            {/* Row 3: Raw Data + Excel */}
             <Card>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#6b7280" }}>Raw data (최근 3시간)</div>
