@@ -525,7 +525,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const apiBase = import.meta.env.VITE_API_BASE;
-  const controlApiBase = import.meta.env.VITE_CONTROL_API_BASE || apiBase;
+  /** 제어 URL: Vercel 배포(vercel.app)에서는 예전 빌드에 박힌 터널 주소로 가면 404 → 항상 동일 출처 /api/control 만 사용. */
+  const controlApiBase =
+    typeof window !== "undefined" && /\.vercel\.app$/i.test(window.location.hostname)
+      ? ""
+      : import.meta.env.PROD
+        ? ""
+        : import.meta.env.VITE_CONTROL_API_BASE || apiBase;
   const camUrl = import.meta.env.VITE_ESP32CAM_URL;
   const driveEnvTrim =
     typeof import.meta.env.VITE_DRIVE_LATEST_PHOTO_URL === "string"
@@ -809,7 +815,11 @@ export default function App() {
     try {
       setControlBusy(true);
       setControlMsg("전송 중...");
-      const res = await fetch(`${controlApiBase}/api/control`, {
+      const controlUrl =
+        controlApiBase && String(controlApiBase).trim() !== ""
+          ? `${String(controlApiBase).replace(/\/$/, "")}/api/control`
+          : "/api/control";
+      const res = await fetch(controlUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ device, state }),
@@ -1078,7 +1088,7 @@ export default function App() {
               {controlApiBase !== apiBase ? (
                 <>
                   {" "}
-                  · 제어 API: <code>{controlApiBase}</code>
+                  · 제어 API: <code>{controlApiBase || "/api/control"}</code>
                 </>
               ) : null}{" "}
               · Latest: <code>{latest.ts ?? "-"}</code> (id:{latest.id ?? "-"})
