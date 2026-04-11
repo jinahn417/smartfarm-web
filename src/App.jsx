@@ -824,7 +824,19 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ device, state }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const t = await res.text();
+        let msg = `HTTP ${res.status}`;
+        try {
+          const j = JSON.parse(t);
+          if (typeof j.message === "string" && j.message.trim()) msg = j.message.trim();
+          else if (typeof j.hint === "string" && j.hint.trim()) msg = j.hint.trim();
+          else if (typeof j.error === "string") msg = `${j.error}${j.detail ? `: ${j.detail}` : ""}`;
+        } catch {
+          if (t && t.length < 400) msg = `${msg} — ${t}`;
+        }
+        throw new Error(msg);
+      }
       skipControlSyncUntilRef.current = Date.now() + 5000;
       setControlMsg("전송 완료");
       setTimeout(() => setControlMsg(null), 1500);

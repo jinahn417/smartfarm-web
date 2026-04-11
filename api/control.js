@@ -54,6 +54,17 @@ export default async function handler(req, res) {
     });
     const text = await r.text();
     const ct = r.headers.get("content-type") || "";
+
+    /* 업스트림 404 = Node-RED 주소·포트 틀림 또는 플로우에 POST /api/control 없음 — 그대로 404면 Vercel 라우트 없음과 헷갈림 */
+    if (r.status === 404) {
+      return res.status(502).json({
+        error: "UPSTREAM_404",
+        message:
+          "Vercel은 Node-RED에 연결했지만, 그 베이스 주소에 POST /api/control 이 없습니다. Vercel 환경변수 CONTROL_API_UPSTREAM 을 Node-RED HTTP가 열린 URL로 맞추세요(예: 공인IP:21880 포워딩이면 http://공인IP:21880). 센서용 8765와 포트가 다를 수 있습니다.",
+        triedUrl: target,
+      });
+    }
+
     if (ct.includes("application/json")) {
       try {
         return res.status(r.status).json(JSON.parse(text || "{}"));
