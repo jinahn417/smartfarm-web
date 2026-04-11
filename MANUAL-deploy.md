@@ -172,6 +172,9 @@ VITE_API_BASE=https://xxxx-xxxx.trycloudflare.com
 4. **Environment Variables** 에 아래 추가:
    - `VITE_API_BASE` = `https://smartfarm-api.내도메인.com` (터널 URL)
    - `KMA_SERVICE_KEY` = `기상청_서비스키` (VITE_ 접두사 없이! 서버리스 함수용)
+   - (선택) Overview **Drive 최신 사진 — Apps Script 경로**: [MANUAL-google-apps-script-drive.md](./MANUAL-google-apps-script-drive.md) 참고  
+     - `APPS_SCRIPT_WEBAPP_URL` = Apps Script 웹앱 `.../exec` 전체 URL  
+     - `VITE_DRIVE_LATEST_PHOTO_URL` = `https://(본인프로젝트).vercel.app/api/apps-script-photo`
 5. "Deploy" 클릭
 
 ### 4.3 배포 확인
