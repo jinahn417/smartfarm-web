@@ -521,25 +521,53 @@
   align-self: stretch;
 }
 
+/* 가로 flex 50:50 는 모바일에서 metric 쪽이 0에 가깝게 줄어듦 → Grid로 2열/1열 전환 */
 .overview-middle-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   flex: 1 1 auto;
   gap: 12px;
   min-height: 0;
   align-items: stretch;
   width: 100%;
+  min-width: 0;
 }
 
 .metric-strip {
-  flex: 1 1 0;
   min-width: 0;
-  width: auto;
+  width: 100%;
   max-width: none;
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-height: 0;
-  align-self: stretch;
+}
+
+/* 1200px 이하: 항상 1열(지표 전체 너비 → DIF·액추). iOS Safari에서 flex column 미적용 이슈 회피 */
+@media (max-width: 1200px) {
+  .overview-middle-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metric-strip {
+    max-width: 100%;
+  }
+
+  .dif-actuator-card--compact {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .metric-pill--liquid {
+    min-height: 118px;
+  }
+
+  .metric-pill__hint-inner {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 }
 
 .metric-pill {
@@ -703,7 +731,6 @@
 }
 
 .dif-actuator-card--compact {
-  flex: 1 1 0;
   min-width: 0;
   max-width: none;
 }
@@ -738,9 +765,9 @@
   font-size: 13px;
 }
 
-@media (max-width: 1100px) {
+/* overview-middle-row 가 Grid로 바뀌면서 flex 보정은 불필요 — 필요 시 너비만 */
+@media (max-width: 1100px) and (min-width: 769px) {
   .dif-actuator-card--compact {
-    flex: 1 1 auto;
     max-width: none;
   }
 }
