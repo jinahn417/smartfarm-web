@@ -11,8 +11,19 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
+  /* 주소창·즐겨찾기는 GET → 제어는 POST만 허용 */
+  if (req.method === "GET") {
+    const host = req.headers?.host || "";
+    const base = host ? `https://${host}` : "";
+    return res.status(200).json({
+      ok: false,
+      hint: "제어는 POST(JSON body)만 됩니다. 브라우저 주소창으로 열면 GET이라 여기까지 옵니다. ACTUATOR 탭 Manual control 또는 아래 curl을 쓰세요.",
+      postBodyExample: { device: "FAN", state: false },
+      curlExample: `curl -X POST -H "Content-Type: application/json" -d "{\\"device\\":\\"FAN\\",\\"state\\":false}" ${base}/api/control`,
+    });
+  }
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed", allow: ["POST", "GET"] });
   }
 
   const upstream = process.env.CONTROL_API_UPSTREAM;
