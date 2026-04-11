@@ -213,6 +213,12 @@
     padding: 10px 12px;
     font-size: 13px;
   }
+
+  .app-main {
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .sensor-grid-mini {
@@ -543,14 +549,57 @@
   min-height: 0;
 }
 
-/* 1200px 이하: 항상 1열(지표 전체 너비 → DIF·액추). iOS Safari에서 flex column 미적용 이슈 회피 */
+/* 1200px 이하: 중간 블록 1열(지표 행 → DIF·액추). 지표 3개는 가로 3칸으로 나란히 — 세로만 쌓으면 flex 분배로 높이가 너무 얇아짐 */
 @media (max-width: 1200px) {
   .overview-middle-row {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .metrics-column {
+    min-height: 0;
+  }
+
   .metric-strip {
     max-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .metric-strip .metric-pill,
+  .metric-strip .metric-pill--liquid {
+    flex: none;
+    min-height: 152px;
+    min-width: 0;
+    padding: 8px 5px;
+    box-sizing: border-box;
+  }
+
+  .metric-pill--liquid {
+    min-height: 152px;
+  }
+
+  .metric-pill__label {
+    font-size: 10px;
+    line-height: 1.35;
+    word-break: keep-all;
+  }
+
+  .metric-pill__num {
+    font-size: clamp(18px, 5.5vw, 30px);
+  }
+
+  .metric-pill__unit-suffix {
+    font-size: 10px;
+  }
+
+  .metric-pill__hint-inner {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    font-size: 8px;
+    line-height: 1.3;
   }
 
   .dif-actuator-card--compact {
@@ -559,14 +608,20 @@
     min-width: 0;
   }
 
-  .metric-pill--liquid {
-    min-height: 118px;
+  .dif-actuator-card .dif-block--inline .dif-block__value {
+    font-size: clamp(26px, 7vw, 36px);
+  }
+}
+
+/* 아주 좁은 폰: 3칸이 빡빡하면 2+1 배치 */
+@media (max-width: 380px) {
+  .metric-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .metric-pill__hint-inner {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
+  .metric-strip .metric-pill:nth-child(3),
+  .metric-strip .metric-pill--liquid:nth-child(3) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -733,6 +788,13 @@
 .dif-actuator-card--compact {
   min-width: 0;
   max-width: none;
+}
+
+/* 모바일: 데스크톱용 gap 75px 는 세로가 과하게 벌어져 납작해 보임 — 위 규칙보다 뒤에 두어 덮어씀 */
+@media (max-width: 1200px) {
+  .dif-actuator-card {
+    gap: 28px;
+  }
 }
 
 /* DIF 박스+주석은 한 덩어리 — 카드 gap:75px가 여기 들어가지 않도록 */
